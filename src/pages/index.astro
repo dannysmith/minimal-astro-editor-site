@@ -1,5 +1,16 @@
 ---
+import { getCollection } from 'astro:content';
 
+const articles = await getCollection('articles', ({ data }) => data.draft !== true);
+const notes = await getCollection('notes', ({ data }) => data.draft !== true);
+
+const recentArticles = articles
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+  .slice(0, 3);
+
+const recentNotes = notes
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+  .slice(0, 3);
 ---
 
 <html lang="en">
@@ -8,9 +19,62 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Minimal Astro Editor Site</title>
+		<meta name="description" content="A minimal Astro blog for testing content editors" />
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<header>
+			<h1>Minimal Astro Editor Site</h1>
+			<nav>
+				<ul>
+					<li><a href="/">Home</a></li>
+					<li><a href="/blog">Blog</a></li>
+					<li><a href="/notes">Notes</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main>
+			<section>
+				<h2>Welcome</h2>
+				<p>This is a minimal Astro blog site set up for testing content editors. It includes collections for both blog articles and notes.</p>
+			</section>
+
+			<section>
+				<h2>Recent Articles</h2>
+				{recentArticles.length === 0 ? (
+					<p>No articles found.</p>
+				) : (
+					<ul>
+						{recentArticles.map((article) => (
+							<li>
+								<h3><a href={`/blog/${article.id}`}>{article.data.title}</a></h3>
+								{article.data.description && <p>{article.data.description}</p>}
+								<p>Published: {new Date(article.data.pubDate).toLocaleDateString()}</p>
+							</li>
+						))}
+					</ul>
+				)}
+				<p><a href="/blog">View all articles →</a></p>
+			</section>
+
+			<section>
+				<h2>Recent Notes</h2>
+				{recentNotes.length === 0 ? (
+					<p>No notes found.</p>
+				) : (
+					<ul>
+						{recentNotes.map((note) => (
+							<li>
+								<h3><a href={`/notes/${note.id}`}>{note.data.title}</a></h3>
+								{note.data.description && <p>{note.data.description}</p>}
+								<p>Published: {new Date(note.data.pubDate).toLocaleDateString()}</p>
+							</li>
+						))}
+					</ul>
+				)}
+				<p><a href="/notes">View all notes →</a></p>
+			</section>
+		</main>
 	</body>
 </html>

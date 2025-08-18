@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('notes', ({ data }) => {
+  return data.draft !== true;
+});
+
+const sortedNotes = notes.sort((a, b) => 
+  new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Notes</title>
+  </head>
+  <body>
+    <header>
+      <h1>Notes</h1>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/notes">Notes</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Notes</h2>
+      {sortedNotes.length === 0 ? (
+        <p>No notes found.</p>
+      ) : (
+        <ul>
+          {sortedNotes.map((note) => (
+            <li>
+              <article>
+                <h3><a href={`/notes/${note.id}`}>{note.data.title}</a></h3>
+                {note.data.description && <p>{note.data.description}</p>}
+                <p>Published: {new Date(note.data.pubDate).toLocaleDateString()}</p>
+                {note.data.sourceURL && (
+                  <p>Source: <a href={note.data.sourceURL} target="_blank" rel="noopener noreferrer">{note.data.sourceURL}</a></p>
+                )}
+                {note.data.tags && note.data.tags.length > 0 && (
+                  <p>Tags: {note.data.tags.join(', ')}</p>
+                )}
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+---
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map((note) => ({
+    params: { id: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{note.data.title}</title>
+    {note.data.description && <meta name="description" content={note.data.description} />}
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/notes">Notes</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <header>
+          <h1>{note.data.title}</h1>
+          <div>
+            <p>Published: {new Date(note.data.pubDate).toLocaleDateString()}</p>
+            {note.data.sourceURL && (
+              <p>Source: <a href={note.data.sourceURL} target="_blank" rel="noopener noreferrer">{note.data.sourceURL}</a></p>
+            )}
+            {note.data.tags && note.data.tags.length > 0 && (
+              <p>Tags: {note.data.tags.join(', ')}</p>
+            )}
+          </div>
+        </header>
+        
+        <Content />
+      </article>
+      
+      <footer>
+        <p><a href="/notes">← Back to Notes</a></p>
+      </footer>
+    </main>
+  </body>
+</html>

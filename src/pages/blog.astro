@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('articles', ({ data }) => {
+  return data.draft !== true;
+});
+
+const sortedArticles = articles.sort((a, b) => 
+  new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Blog - Articles</title>
+  </head>
+  <body>
+    <header>
+      <h1>Blog</h1>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/notes">Notes</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Articles</h2>
+      {sortedArticles.length === 0 ? (
+        <p>No articles found.</p>
+      ) : (
+        <ul>
+          {sortedArticles.map((article) => (
+            <li>
+              <article>
+                <h3><a href={`/blog/${article.id}`}>{article.data.title}</a></h3>
+                {article.data.description && <p>{article.data.description}</p>}
+                <p>Published: {new Date(article.data.pubDate).toLocaleDateString()}</p>
+                {article.data.updatedDate && (
+                  <p>Updated: {new Date(article.data.updatedDate).toLocaleDateString()}</p>
+                )}
+                {article.data.tags && article.data.tags.length > 0 && (
+                  <p>Tags: {article.data.tags.join(', ')}</p>
+                )}
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
+  </body>
+</html>

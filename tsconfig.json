@@ -1,5 +1,16 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "include": [".astro/types.d.ts", "**/*", "src/types/*.d.ts"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "jsx": "react",
+    "strictNullChecks": true,
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/mdx": ["src/components/mdx/index.ts"],
+      "@components/mdx/*": ["src/components/mdx/*"]
+    }
+  }
 }
